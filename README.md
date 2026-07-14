@@ -10,16 +10,12 @@ A modular python-based pipeline to extract and classify H-NS and StpA proteins f
 * **Clustering:** CD-HIT clustering at 100% identity via Apptainer to isolate unique sequence variants.
 * **Slurm Orchestration:** Full HPC resource management script utilizing Astral's `uv` for package management.
 
----
-
 ## Dependencies & Requirements
 
 * **Python 3.8+** (System python base module)
 * **Apptainer** (Required for containerized CD-HIT and Platon execution)
 * **Platon Database:** Located at `/project/GROUP-MOLEPI/databases/platon_db/db` (HPC specific)
 * **Apptainer SIF Images:** Placed in `/project/GROUP-MOLEPI/apptainer/` (`platon.sif` and `cd-hit.sif`)
-
----
 
 ## Installation & Setup
 
@@ -33,8 +29,6 @@ cd /project/GROUP-MOLEPI/HNS/
 # Download the HMM profile from the Pfam/InterPro API
 python3 src/hns_extractor.py --download-hmm
 ```
-
----
 
 ## Usage Guide
 
@@ -69,8 +63,6 @@ sbatch run_hns_pipeline.sh \
   test_extracted_hns
 ```
 
----
-
 ## Input File Formats
 
 ### Genome assembly list (`test_samples.tsv`):
@@ -78,8 +70,6 @@ A Tab-Separated Values file containing `Sample_Name` in the first column, and th
 ```tsv
 SAMEA114094068_30EN_local	/project/GROUP-MOLEPI/HNS/test_input/SAMEA114094068_30EN_local.fasta
 ```
-
----
 
 ## Output Files
 
@@ -94,8 +84,6 @@ Upon successful completion, the pipeline outputs:
   * `{Sample_Name}.done`: Empty sentinel file indicating that H-NS extraction and Platon prediction for this sample completed successfully.
   * `{Sample_Name}_hits.json`: Cached scanner results to allow instant resume execution.
 
----
-
 ## Checkpointing & Resume Mode
 
 To facilitate running on large batches (e.g., 1,400+ genomes) on high-performance compute clusters, the pipeline has a built-in checkpoint/resume mechanism:
@@ -103,10 +91,10 @@ To facilitate running on large batches (e.g., 1,400+ genomes) on high-performanc
 * **Platon Cache:** Platon is skipped for any sample that already has a non-empty `{Sample_Name}_platon/{Sample_Name}.contigs.tsv` output file.
 * **To Clean Run:** Simply target a new output directory or empty the existing one.
 
----
-
 ## Memory Concurrency Guard
 
 * **Auto-scaling Workers:** Platon executions run concurrently to optimize performance. To prevent Out-Of-Memory (OOM) failures under Slurm, the pipeline reads `SLURM_MEM_PER_NODE` and automatically caps the concurrent Platon worker count:
-  $$\text{Max Platon Workers} = \max\left(1, \frac{\text{SLURM\_MEM\_PER\_NODE}}{2 \text{ GB}}\right)$$
-  If the memory allocated is too low for the requested CPUs, the pipeline downscales parallel worker count dynamically to run safely within limits.
+
+$$\text{Max Platon Workers} = \max\left(1, \frac{\text{SLURM\\_MEM\\_PER\\_NODE}}{2 \text{ GB}}\right)$$
+
+If the memory allocated is too low for the requested CPUs, the pipeline downscales parallel worker count dynamically to run safely within limits.

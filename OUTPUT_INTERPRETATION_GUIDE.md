@@ -45,10 +45,8 @@ graph TD
 6. **Parallel Concurrency & Resource Guarding:**
    * **Parallel Scanning and Classification:** Gene prediction and HMMER scanning are distributed across CPU threads using process pools. Platon classifications are run in parallel using a thread pool of Apptainer container execution workers, significantly reducing cohort runtime.
    * **Memory Concurrency Guard:** To prevent Out-Of-Memory (OOM) failures under Slurm workloads, the pipeline monitors `SLURM_MEM_PER_NODE` and dynamically caps the concurrent Platon worker count:
-     $$\text{Max Platon Workers} = \max\left(1, \frac{\text{SLURM\_MEM\_PER\_NODE}}{2 \text{ GB}}\right)$$
+     $$\text{Max Platon Workers} = \max\left(1, \frac{\text{SLURM\\_MEM\\_PER\\_NODE}}{2 \text{ GB}}\right)$$
    * **Checkpointing & Resume Mode:** Each sample writes a `{Sample_Name}.done` empty sentinel and `{Sample_Name}_hits.json` cache file. If a job times out or is cancelled, re-running on the same output directory will instantly skip already-processed genomes and resume execution cleanly.
-
----
 
 ## Output Report Structure
 
@@ -75,31 +73,25 @@ The final output is a merged tab-separated values (TSV) file (`all_hns_variants_
   * **`Plasmid`**: Platon successfully matched plasmid-specific replication, mobilization, conjugation, or incompatibility markers on this contig.
   * **`Unknown`**: Indeterminate prediction, typically occurring on very short contigs where diagnostic markers are absent.
 
----
-
 ## Example Interpretations
 
 1. **True Chromosomal H-NS**
    * `Predicted_protein`: `H-NS`
    * `Location`: `Chromosome`
-   * `HNS_identity`: High ($>90\%$)
-   * `StpA_identity`: Moderate ($\sim50\% - 60\%$)
+   * `HNS_identity`: Higher than `StpA_identity`
    * *Interpretation:* A standard core-genome histone-like structuring protein.
 
 2. **Plasmid-Borne H-NS**
    * `Predicted_protein`: `H-NS`
    * `Location`: `Plasmid`
-   * `HNS_identity`: Variable (often divergent from the chromosomal counterpart)
+   * `HNS_identity`: Higher than `StpA_identity`, variable (often divergent from the chromosomal counterpart)
    * *Interpretation:* A plasmid-encoded H-NS variant. These are crucial targets when studying the dissemination of antibiotic resistance genes, as they often modulate the fitness costs of newly acquired plasmids.
 
 3. **StpA Paralog**
    * `Predicted_protein`: `StpA`
    * `Location`: `Chromosome`
-   * `StpA_identity`: High ($>90\%$)
-   * `HNS_identity`: Moderate ($\sim55\%$)
+   * `StpA_identity`: Higher than `HNS_identity`
    * *Interpretation:* The core-encoded StpA paralog.
-
----
 
 ## CD-HIT Dereplication Outputs
 For each sample, the pipeline performs CD-HIT dereplication at 100% identity, resulting in two main FASTA files per sample:

@@ -69,9 +69,9 @@ The final output is a merged tab-separated values (TSV) file (`all_hns_variants_
 
 ### 4. Genomic Location
 * **`Location`**: The predicted replication origin of the contig carrying the gene:
-  * **`Chromosome`**: Platon characterized the contig as chromosomal (lacking plasmid-specific diagnostic markers).
-  * **`Plasmid`**: Platon successfully matched plasmid-specific replication, mobilization, conjugation, or incompatibility markers on this contig.
-  * **`Unknown`**: Indeterminate prediction, typically occurring on very short contigs where diagnostic markers are absent.
+  * **`Chromosome`**: The contig is outputted in Platon's `.chromosome.fasta` file.
+  * **`Plasmid`**: The contig is outputted in Platon's `.plasmid.fasta` file (identifying replication origin, mobilization, conjugation, or incompatibility plasmid markers).
+  * **`Unknown`**: Fallback value if Platon classification did not run or failed to yield outputs for this contig.
 
 ## Example Interpretations
 

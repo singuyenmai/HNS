@@ -41,10 +41,13 @@ class TestPlatonClassifier(unittest.TestCase):
             platon_dir = out_path / f"{sample_name}_platon"
             platon_dir.mkdir(exist_ok=True)
             if sample_name == "sample1":
-                df = pd.DataFrame([{"ID": "contig1", "# Plasmid Hits": 3}, {"ID": "contig2", "# Plasmid Hits": 0}])
+                with open(platon_dir / f"{sample_name}.contigs.plasmid.fasta", "w") as f:
+                    f.write(">contig1\nATGC\n")
+                with open(platon_dir / f"{sample_name}.contigs.chromosome.fasta", "w") as f:
+                    f.write(">contig2\nATGC\n")
             else:
-                df = pd.DataFrame([{"ID": "contig3", "# Plasmid Hits": 1}])
-            df.to_csv(platon_dir / f"{sample_name}.contigs.tsv", sep='\t', index=False)
+                with open(platon_dir / f"{sample_name}.contigs.plasmid.fasta", "w") as f:
+                    f.write(">contig3\nATGC\n")
             
             return MagicMock(returncode=0)
             

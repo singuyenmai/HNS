@@ -117,19 +117,31 @@ class PlatonClassifier(PipelineStep):
         platon_dict = {}
         
         for sample_name in samples_with_hits:
-            # Platon produces a TSV with the base name of the input file
-            # E.g. sample_name.contigs.tsv
-            platon_tsv = out_path / f"{sample_name}_platon" / f"{sample_name}.contigs.tsv"
-            if platon_tsv.exists():
+            platon_dir = out_path / f"{sample_name}_platon"
+            
+            # Read chromosome FASTA contig IDs
+            chrom_fasta = platon_dir / f"{sample_name}.contigs.chromosome.fasta"
+            if chrom_fasta.exists():
                 try:
-                    df = pd.read_csv(platon_tsv, sep='\t')
-                    for _, row in df.iterrows():
-                        contig_id = str(row['ID'])
-                        is_plasmid = bool(row['# Plasmid Hits'])
-                        location = "Plasmid" if is_plasmid else "Chromosome"
-                        platon_dict[contig_id] = location
+                    with open(chrom_fasta, "r") as f:
+                        for line in f:
+                            if line.startswith(">"):
+                                contig_id = line[1:].strip().split()[0]
+                                platon_dict[contig_id] = "Chromosome"
                 except Exception as e:
-                    print(f"Error reading Platon output for {sample_name}: {e}", file=sys.stderr)
+                    print(f"Error reading Platon chromosome FASTA for {sample_name}: {e}", file=sys.stderr)
+                    
+            # Read plasmid FASTA contig IDs
+            plasmid_fasta = platon_dir / f"{sample_name}.contigs.plasmid.fasta"
+            if plasmid_fasta.exists():
+                try:
+                    with open(plasmid_fasta, "r") as f:
+                        for line in f:
+                            if line.startswith(">"):
+                                contig_id = line[1:].strip().split()[0]
+                                platon_dict[contig_id] = "Plasmid"
+                except Exception as e:
+                    print(f"Error reading Platon plasmid FASTA for {sample_name}: {e}", file=sys.stderr)
                     
         # Update tsv_hits with Location
         for hit in tsv_hits:

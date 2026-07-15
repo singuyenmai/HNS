@@ -11,7 +11,7 @@ from modules.downloader import HMMDownloader
 from modules.extractor import HNSScanner
 from modules.reporter import MergedReporter
 from modules.deduplicator import CDHitDeduplicator
-from modules.classifier import PlatonClassifier
+from modules.classifier import LocationClassifier
 from Bio import SeqIO
 from constants import DEFAULT_HMM_FILE, DEFAULT_BIT_SCORE_THRESHOLD
 
@@ -28,6 +28,8 @@ def main():
     parser.add_argument("--output-dir", "-d", type=str, default="extracted_hns", help="Output directory for individual genome .faa and .contigs.fasta files.")
     parser.add_argument("--output-unique", "-u", action="store_true", help="Enable CD-HIT unique variants clustering per sample.")
     parser.add_argument("--mem-limit", type=int, default=4000, help="CD-HIT memory limit in Megabytes (default: 4000).")
+    parser.add_argument("--classifier", type=str, choices=["mlplasmids", "platon", "genomad"], default="genomad", help="Genomic location classification engine (default: genomad).")
+    parser.add_argument("--species", type=str, default="Klebsiella pneumoniae", help="Species for mlplasmids classification (default: 'Klebsiella pneumoniae').")
     parser.add_argument("fasta_files", nargs="*", type=str, help="List of explicit FASTA files to process.")
     
     args = parser.parse_args()
@@ -123,13 +125,15 @@ def main():
         stpa_ref=stpa_ref
     )
     
-    # Step 3.5: Run Platon Contig Classification
-    classifier = PlatonClassifier()
+    # Step 3.5: Run Plasmid/Chromosome Location Classification
+    classifier = LocationClassifier()
     tsv_hits = classifier.run(
         tsv_hits=tsv_hits,
         unique_genomes=unique_genomes,
         output_dir=args.output_dir,
-        cpus=args.cpus
+        cpus=args.cpus,
+        classifier_engine=args.classifier,
+        species=args.species
     )
     
     # Step 4: Write merged/aggregated outputs
